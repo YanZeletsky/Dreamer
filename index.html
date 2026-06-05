@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Сновидец — Прототип</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ Phone Shell ══ -->
+  <div class="phone-shell">
+    <div class="notch"></div>
+    <div class="home-bar"></div>
+
+    <!-- ════════════════════════════
+         SCREEN 1 — LOADING
+    ════════════════════════════ -->
+    <div class="screen" id="screen-loading">
+      <img class="loading-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABkAGQDASIAAhEBAxEB/8QAHAAAAgIDAQEAAAAAAAAAAAAAAAEFBgIEBwMI/8QAMBAAAQMDAwIGAgEDBQAAAAAAAQACAwQFEQYhMRJBBxMiMlGBYXFCFCPRFSRSkaH/xAAaAQABBQEAAAAAAAAAAAAAAAAEAAECAwUG/8QALBEAAQQBAwEGBgMAAAAAAAAAAQACAwQRBRIhMQYTIkFRYTJxkaHB8IGx0f/aAAwDAQACEQMRAD8A+NU0k8ZTKSE8JgJgZSUg3KxAWQaV7RRF7gGtJP4U/bNI3y4BpprdUPDvaWxk5Sa1zzhoyjYKck3DG5Va6fwjBHCvsfhnqh0jWNtk/WRkDp3UbddGX221BhrLdUQvzjD4yFbJXmjbuc0gfJEHS7I42FVNwykQpSvtlRSOLZ4nMI+Qo97MHdUBwKCmrvjOHDBXkksjyknQpGEkIQpZTJppLJoTBSCY3ClbBaKi61sdPTxucXHsFrWuhkrKhkbeCV9D+HWm7LYrSK57xJVDBPSd2/tGx05XR96W+H1R1aOMAyynDQrF4W+CdlpGQXK/Pe6MND+MZyNgNjuuoXCt05Y5Y20cULWBmXRhmXD4+1Srhr6pntjrfC6Frs4DeG4A2cVQrxX1pZIHVvmVLpBkE8Nx7j3wtGrXG4EfCh7naB0+5lYho8sLrFw1lp+qy+qY2Pod0xnI2H1utqkr7RWQiN0AqGy5Mb5mZw/GxHyuCBtVVtLXscWtwS8ZHJ2xnlWmw3SaCRr6c+gM9TXnIyO/2tqbTmujLmv8K5mDW9SrPOXbiFL+PugZtQQNvtut9I2cRCOpbS5/ulvD8En1djjnGflfLl3tk9FM6OVjgR8hfe3h9dY7pQtjNMyWUnpERwBk4A54P5VD8bPCBrI664Q0Ya1n918/UGxP6nAdPqxhwJ2xkHjY4zyVqrWrcmQN/K7/AE25Fq9dkcg2yAYGf6/xfGD2HPC8yMFWzUNjlopntbE7pB5wqzUxujeWuGChcLOuVHV3lruq8MITzhCZBYQFkOdlgFsUzQ92MK2NpecBJq6X4QaZkrGvuU8kUFM14YZpNw13Ow7lXDUN1hs8T6ZkzpHnYgHIPwf3hV7TFSyj01G1uQHtyW/k/wAsqvXq4PmqpWn1DOeojcrfv3DsiqA+Bg+55JQ1mCS49sQGGA8+6nnX98mHSVJ6s49HuPfH4W9YZmzXKSqqGyiFwIc4nP0oTS1LSTDzKiFzy4gg9gumw2y30tocaYec7pz7dgT8LAmuOjdwVr1dEjDMN4VO1FqWZlaKW3wf7ZpAAaSNuP8AP/ZW7p291XnNhNIxzS05Dm7kHkZ4Vu0jo0XqdzH0kAxG5znvcGBo4BJPYEjbk8BWm6aRsVLY2U5mop5WgH+qjBac8Fu+4A5BxugJdYe47CThHwdmYQ7vGNGf3qvbQdwovKDaQ9EpIDmdWSV0/WtFSXvw0qcSf6lUwRgiOV7h0DIy44c05GM7Z3GMEEr5eudBUWiudJbqySSM8lxwQFeNG3a71lFJ51RO6lib0yvYTtnYBx+Oedt0Q5jbdXYHe6a3FJQuxyBuFR9b07TZ4qJ8bI5I3kiRv8s9lxzU8MUdW4ujLSNiB8rt2rbbTugnlFe6VrZC8NdkuyOxXEdZ1pqriSWtHSMYCrozObA6M+q1dbEbmCTHJVeI3QgndCu4XI8JDdTNrp2mjJLcyPeA39d1DNODsrFbDCKSKoDuosdhzT2B7rouzlds07s4yGnr9P36oeVxaMhSVXWspwIC/wBLNmheVj8253FtOWhwc7HHAWncfIfOSCS3kBT2h6fy60T7sYNg7KEv13xSuAGVoVDvIXadFaDle9jPLaKcMyXEgtaPrn6Vv1BZoQ+K226PobEwOkc/G+25yoqxahcyAf0jWw0zI2te6Pfcd/tV7U+tzTPLY5fVIT7v+K5O7HLOQ4Houi0814JjG85z9Fuatuht9GKeiqCT7ZHAkA/SqT7xNJGWmoJHfflQep9TtqunpGWuOTvyog3WJ8jAQIy7YnOwClFSe5uXou1rbK8mIT4V0q3eXdaWGOKGokmcD50jyPLG+2PpTlMW2Rk8dJiTEWHkD55CpDdQCNkEFtbjLcOLXbP47D9f+qQoq2op2zVdbJG4lhw0ngrZo1u4iLeoK5OTVZtXsh0mA0dB+SvLV9wpKOxzzCUxzSs9MWNyf8LgFxlM1S95PJV28Qr2+pIjIaHH3OH8lQXnJVctcQuwDnK09WvNmayJnRv3KxP7QhCgsBJb9urnUrHx4BY8YIK0OExwiatqWrIJIjgqOARgqw0LhNTnAOx5U9pGappK8tIL4z/H5VMoK+Wkz0bgqbtuo/6d0UgaDK0gFx+F1UdylZia90m2Xz9P4+auheWHHkun1F3mt9tnhp29UhHUcHgfC51daysqpS97nZA9pPAU7da6G4UgqaCQB7x6mEgEFVwzSNmaJQS87Ek7oHUdGFTa4N+LnPUKDrjmyOC9qaCSqpQOrLmHA34C3aO0VNVOWtYXEd/wtOlrvLJZG07e44W4y5y08r2wucXNGC7sM/CDFfvMBw4Qcs4OQ3kqzWqCGkcJJJmZYMBpK8tR3ijFOS5xPT7m5xn8KnSXRrYnNJf19ZcG52+1BV9dJUnLnH9KZsRxQ7MK+lH3Y3O6r0v9xbca987IWwxn2sacgKLcm4rAlZEkrpXFzupVzijKEsoVeFXlCaSEkk8rILFASHBT5WzBVTQOBY8jH5UlTXgOm66mNrz8kcKFyhaNbU7FbhjuPQ9EiAeqmhdzBKXweknnvlak9xnlBHW4A8rQQClPqdibhx49kwa0LNz3E5JJKxc5LKxcgDlSLinnKxKYQojhQPKSEFCdMmEIQmCkmUBCE/mnQgFCE5STKWUITeaSEkITFMUJFCEgkjKEITpl/9k=" alt="Сновидец">
+      <div class="loading-bar-track">
+        <div class="loading-bar-fill"></div>
+      </div>
+      <div class="loading-hint">Нажмите для продолжения</div>
+    </div>
+
+    <!-- ════════════════════════════
+         SCREEN 2 — LOGIN
+    ════════════════════════════ -->
+    <div class="screen" id="screen-login">
+      <div class="login-logo-wrap">
+        <img class="login-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABkAGQDASIAAhEBAxEB/8QAHAAAAgIDAQEAAAAAAAAAAAAAAAEFBgIEBwMI/8QAMBAAAQMDAwIGAgEDBQAAAAAAAQACAwQFEQYhMRJBBxMiMlGBYXFCFCPRFSRSkaH/xAAaAQABBQEAAAAAAAAAAAAAAAAEAAECAwUG/8QALBEAAQQBAwEGBgMAAAAAAAAAAQACAwQRBRIhMQYTIkFRYTJxkaHB8IGx0f/aAAwDAQACEQMRAD8A+NU0k8ZTKSE8JgJgZSUg3KxAWQaV7RRF7gGtJP4U/bNI3y4BpprdUPDvaWxk5Sa1zzhoyjYKck3DG5Va6fwjBHCvsfhnqh0jWNtk/WRkDp3UbddGX221BhrLdUQvzjD4yFbJXmjbuc0gfJEHS7I42FVNwykQpSvtlRSOLZ4nMI+Qo97MHdUBwKCmrvjOHDBXkksjyknQpGEkIQpZTJppLJoTBSCY3ClbBaKi61sdPTxucXHsFrWuhkrKhkbeCV9D+HWm7LYrSK57xJVDBPSd2/tGx05XR96W+H1R1aOMAyynDQrF4W+CdlpGQXK/Pe6MND+MZyNgNjuuoXCt05Y5Y20cULWBmXRhmXD4+1Srhr6pntjrfC6Frs4DeG4A2cVQrxX1pZIHVvmVLpBkE8Nx7j3wtGrXG4EfCh7naB0+5lYho8sLrFw1lp+qy+qY2Pod0xnI2H1utqkr7RWQiN0AqGy5Mb5mZw/GxHyuCBtVVtLXscWtwS8ZHJ2xnlWmw3SaCRr6c+gM9TXnIyO/2tqbTmujLmv8K5mDW9SrPOXbiFL+PugZtQQNvtut9I2cRCOpbS5/ulvD8En1djjnGflfLl3tk9FM6OVjgR8hfe3h9dY7pQtjNMyWUnpERwBk4A54P5VD8bPCBrI664Q0Ya1n918/UGxP6nAdPqxhwJ2xkHjY4zyVqrWrcmQN/K7/AE25Fq9dkcg2yAYGf6/xfGD2HPC8yMFWzUNjlopntbE7pB5wqzUxujeWuGChcLOuVHV3lruq8MITzhCZBYQFkOdlgFsUzQ92MK2NpecBJq6X4QaZkrGvuU8kUFM14YZpNw13Ow7lXDUN1hs8T6ZkzpHnYgHIPwf3hV7TFSyj01G1uQHtyW/k/wAsqvXq4PmqpWn1DOeojcrfv3DsiqA+Bg+55JQ1mCS49sQGGA8+6nnX98mHSVJ6s49HuPfH4W9YZmzXKSqqGyiFwIc4nP0oTS1LSTDzKiFzy4gg9gumw2y30tocaYec7pz7dgT8LAmuOjdwVr1dEjDMN4VO1FqWZlaKW3wf7ZpAAaSNuP8AP/ZW7p291XnNhNIxzS05Dm7kHkZ4Vu0jo0XqdzH0kAxG5znvcGBo4BJPYEjbk8BWm6aRsVLY2U5mop5WgH+qjBac8Fu+4A5BxugJdYe47CThHwdmYQ7vGNGf3qvbQdwovKDaQ9EpIDmdWSV0/WtFSXvw0qcSf6lUwRgiOV7h0DIy44c05GM7Z3GMEEr5eudBUWiudJbqySSM8lxwQFeNG3a71lFJ51RO6lib0yvYTtnYBx+Oedt0Q5jbdXYHe6a3FJQuxyBuFR9b07TZ4qJ8bI5I3kiRv8s9lxzU8MUdW4ujLSNiB8rt2rbbTugnlFe6VrZC8NdkuyOxXEdZ1pqriSWtHSMYCrozObA6M+q1dbEbmCTHJVeI3QgndCu4XI8JDdTNrp2mjJLcyPeA39d1DNODsrFbDCKSKoDuosdhzT2B7rouzlds07s4yGnr9P36oeVxaMhSVXWspwIC/wBLNmheVj8253FtOWhwc7HHAWncfIfOSCS3kBT2h6fy60T7sYNg7KEv13xSuAGVoVDvIXadFaDle9jPLaKcMyXEgtaPrn6Vv1BZoQ+K226PobEwOkc/G+25yoqxahcyAf0jWw0zI2te6Pfcd/tV7U+tzTPLY5fVIT7v+K5O7HLOQ4Houi0814JjG85z9Fuatuht9GKeiqCT7ZHAkA/SqT7xNJGWmoJHfflQep9TtqunpGWuOTvyog3WJ8jAQIy7YnOwClFSe5uXou1rbK8mIT4V0q3eXdaWGOKGokmcD50jyPLG+2PpTlMW2Rk8dJiTEWHkD55CpDdQCNkEFtbjLcOLXbP47D9f+qQoq2op2zVdbJG4lhw0ngrZo1u4iLeoK5OTVZtXsh0mA0dB+SvLV9wpKOxzzCUxzSs9MWNyf8LgFxlM1S95PJV28Qr2+pIjIaHH3OH8lQXnJVctcQuwDnK09WvNmayJnRv3KxP7QhCgsBJb9urnUrHx4BY8YIK0OExwiatqWrIJIjgqOARgqw0LhNTnAOx5U9pGappK8tIL4z/H5VMoK+Wkz0bgqbtuo/6d0UgaDK0gFx+F1UdylZia90m2Xz9P4+auheWHHkun1F3mt9tnhp29UhHUcHgfC51daysqpS97nZA9pPAU7da6G4UgqaCQB7x6mEgEFVwzSNmaJQS87Ek7oHUdGFTa4N+LnPUKDrjmyOC9qaCSqpQOrLmHA34C3aO0VNVOWtYXEd/wtOlrvLJZG07e44W4y5y08r2wucXNGC7sM/CDFfvMBw4Qcs4OQ3kqzWqCGkcJJJmZYMBpK8tR3ijFOS5xPT7m5xn8KnSXRrYnNJf19ZcG52+1BV9dJUnLnH9KZsRxQ7MK+lH3Y3O6r0v9xbca987IWwxn2sacgKLcm4rAlZEkrpXFzupVzijKEsoVeFXlCaSEkk8rILFASHBT5WzBVTQOBY8jH5UlTXgOm66mNrz8kcKFyhaNbU7FbhjuPQ9EiAeqmhdzBKXweknnvlak9xnlBHW4A8rQQClPqdibhx49kwa0LNz3E5JJKxc5LKxcgDlSLinnKxKYQojhQPKSEFCdMmEIQmCkmUBCE/mnQgFCE5STKWUITeaSEkITFMUJFCEgkjKEITpl/9k=" alt="Сновидец">
+      </div>
+      <div class="login-form">
+        <input class="field" type="text" placeholder="Логин или email" readonly>
+        <input class="field" type="text" placeholder="Пароль" readonly>
+      </div>
+      <button class="btn-login" data-goto="diary-entries">Войти</button>
+      <div class="login-links">
+        <span class="login-link">Забыли пароль?</span>
+        <span class="login-link">Регистрация</span>
+      </div>
+      <div class="login-divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">Войти через</span>
+        <div class="divider-line"></div>
+      </div>
+      <div class="socials">
+        <div class="social-btn">V</div>
+        <div class="social-btn">G</div>
+        <div class="social-btn">Я</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════
+         SCREEN 3 — DIARY (ENTRIES)
+    ════════════════════════════ -->
+    <div class="screen" id="screen-diary-entries" style="flex-direction:column;">
+      <!-- Metrics -->
+      <div class="diary-topbar">
+        <div class="metrics-row">
+          <div class="metric-card">
+            <div class="metric-value">5</div>
+            <div class="metric-label">Снов</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">48%</div>
+            <div class="metric-label">Осознанность</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">Май</div>
+            <div class="metric-label">Период</div>
+          </div>
+        </div>
+      </div>
+      <div class="section-label">Последние записи</div>
+      <!-- Dream list -->
+      <div class="dream-list">
+        <div class="dream-card">
+          <div class="dream-icon">📝</div>
+          <div class="dream-body">
+            <div class="dream-title">Полет над городом</div>
+            <div class="dream-meta">12 мая · 02:34</div>
+            <div class="dream-tags"><span class="dream-tag">#Осознанный</span><span class="dream-tag">#Повторяющийся</span></div>
+          </div>
+          <div class="dream-right">
+            <div class="dream-pct">87%</div>
+            <div class="dream-actions">✏️ 🗑️</div>
+          </div>
+        </div>
+        <div class="dream-card">
+          <div class="dream-icon">🎤</div>
+          <div class="dream-body">
+            <div class="dream-title">Разговор с тенью</div>
+            <div class="dream-meta">11 мая · 04:15</div>
+            <div class="dream-tags"><span class="dream-tag">#Кошмар</span></div>
+          </div>
+          <div class="dream-right">
+            <div class="dream-pct">42%</div>
+            <div class="dream-actions">✏️ 🗑️</div>
+          </div>
+        </div>
+        <div class="dream-card">
+          <div class="dream-icon">📹</div>
+          <div class="dream-body">
+            <div class="dream-title">Бесконечный коридор</div>
+            <div class="dream-meta">10 мая · 01:50</div>
+            <div class="dream-tags"><span class="dream-tag">#Повторяющийся</span></div>
+          </div>
+          <div class="dream-right">
+            <div class="dream-pct">23%</div>
+            <div class="dream-actions">✏️ 🗑️</div>
+          </div>
+        </div>
+        <div class="dream-card">
+          <div class="dream-icon">📝</div>
+          <div class="dream-body">
+            <div class="dream-title">Встреча с учителем</div>
+            <div class="dream-meta">9 мая · 03:20</div>
+            <div class="dream-tags"><span class="dream-tag">#Осознанный</span><span class="dream-tag">#Люцидный</span></div>
+          </div>
+          <div class="dream-right">
+            <div class="dream-pct">91%</div>
+            <div class="dream-actions">✏️ 🗑️</div>
+          </div>
+        </div>
+        <div class="dream-card">
+          <div class="dream-icon">🎤</div>
+          <div class="dream-body">
+            <div class="dream-title">Падение в бездну</div>
+            <div class="dream-meta">8 мая · 02:10</div>
+            <div class="dream-tags"><span class="dream-tag">#Кошмар</span><span class="dream-tag">#Падение</span></div>
+          </div>
+          <div class="dream-right">
+            <div class="dream-pct">15%</div>
+            <div class="dream-actions">✏️ 🗑️</div>
+          </div>
+        </div>
+      </div>
+      <!-- FAB -->
+      <div class="fab" data-goto="add-dream">+</div>
+      <!-- Bottom nav -->
+      <nav class="bottom-nav">
+        <div class="nav-item active" data-screen="diary-entries">
+          <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg></div>
+          <span class="nav-lbl">Дневник</span>
+        </div>
+        <div class="nav-item" data-screen="visualization">
+          <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg></div>
+          <span class="nav-lbl">Визуализация</span>
+        </div>
+        <div class="nav-item" data-screen="analytics">
+          <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <span class="nav-lbl">Аналитика</span>
+        </div>
+        <div class="nav-item" data-screen="profile">
+          <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+          <span class="nav-lbl">Профиль</span>
+        </div>
+      </nav>
+      <div class="safe-bottom"></div>
+    </div>
+
+    <!-- ════════════════════════════
+         SCREEN 4 — ADD DREAM
+    ════════════════════════════ -->
+    <div class="screen" id="screen-add-dream" style="flex-direction:column;">
+      <div class="screen-body">
+        <div class="add-inner">
+          <div class="screen-heading">Новая запись сна</div>
+          <div class="voice-banner">
+            <div class="voice-banner-icon">🎤</div>
+            <div class="voice-banner-text">Голосовая команда «Сон, запись» — наговорите сон, а приложение создаст черновик. После остановки записи черновик появится в дневнике.</div>
+          </div>
+          <div>
+            <div class="field-label">Опиши сон <span class="hint-icon">?</span></div>
+            <textarea class="add-textarea" placeholder="Начните писать или используйте микрофон" readonly></textarea>
+            <div class="char-count">0 / 2000</div>
+          </div>
+          <div>
+            <div class="field-label">Стоп-кадр</div>
+            <input class="add-input" type="text" placeholder="одно-два предложения" readonly>
+          </div>
+          <div>
+            <div class="expand-header">
+              <span class="expand-title">Настроить дополнительные параметры</span>
+              <span class="expand-arrow">▲</span>
+            </div>
+            <div class="expand-body">
+              <div>
+                <div class="param-label">Длительность сна</div>
+                <div class="radio-row">
+                  <span class="chip">Мгновение</span><span class="chip">Короткий</span><span class="chip on">Обычный</span><span class="chip">Долгий</span><span class="chip">Бесконечный</span>
+                </div>
+              </div>
+              <div class="divider-sm"></div>
+              <div>
+                <div class="param-label">Теги</div>
+                <div class="tags-input">Введите тег…</div>
+                <div class="tag-suggestions">
+                  <span class="tag-chip">лес</span><span class="tag-chip">город</span><span class="tag-chip">школа</span><span class="tag-chip">вода</span><span class="tag-chip">космос</span><span class="tag-chip">зеркало</span><span class="tag-chip">лестница</span><span class="tag-chip">автомобиль</span><span class="tag-chip">книга</span><span class="tag-chip">часы</span><span class="tag-chip">мама</span><span class="tag-chip">незнакомец</span><span class="tag-chip">тень</span><span class="tag-chip">животное</span><span class="tag-chip">страх</span><span class="tag-chip">радость</span><span class="tag-chip">тревога</span><span class="tag-chip">удивление</span><span class="tag-chip">покой</span><span class="tag-chip">дождь</span><span class="tag-chip">туман</span><span class="tag-chip">снег</span><span class="tag-chip">гроза</span><span class="tag-chip">полёт</span><span class="tag-chip">падение</span><span class="tag-chip">бег</span><span class="tag-chip">разговор</span><span class="tag-chip">плавание</span>
+                </div>
+              </div>
+              <div class="divider-sm"></div>
+              <div>
+                <div class="param-label">Время суток</div>
+                <div class="radio-row"><span class="chip">День</span><span class="chip on">Ночь</span><span class="chip">Неопределённое</span></div>
+              </div>
+              <div>
+                <div class="param-label">Цветовая гамма</div>
+                <div class="radio-row"><span class="chip on">Тёплая</span><span class="chip">Холодная</span><span class="chip">Чёрно-белая</span><span class="chip">Сепия</span></div>
+              </div>
+              <div>
+                <div class="param-label">Сюрреалистичность</div>
+                <div class="radio-row"><span class="chip">Реализм</span><span class="chip on">Лёгкая странность</span><span class="chip">Полный сюрреализм</span></div>
+              </div>
+              <div class="divider-sm"></div>
+              <div class="toggle-row">
+                <span class="toggle-label">Осознанный сон</span>
+                <div class="toggle off"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="toggle-row">
+                <span class="toggle-label">Было чувство присутствия реальности</span>
+                <div class="toggle off"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="divider-sm"></div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div class="checkbox-row"><div class="checkbox-box"></div><span class="checkbox-label">Присутствовали узнаваемые люди (размывать лица знакомых)</span></div>
+                <div class="checkbox-row"><div class="checkbox-box"></div><span class="checkbox-label">Содержал эротические сцены</span></div>
+                <div class="checkbox-row"><div class="checkbox-box"></div><span class="checkbox-label">Были нарушения физики</span></div>
+                <div class="checkbox-row"><div class="checkbox-box"></div><span class="checkbox-label">Слышал звуки / музыку</span></div>
+              </div>
+              <div class="divider-sm"></div>
+              <div class="slider-wrap">
+                <div class="param-label">Эмоциональная яркость</div>
+                <div class="slider-sublabel">Насколько сильные эмоции ты испытывал?</div>
+                <div class="slider-track">
+                  <div class="slider-fill"></div>
+                  <div class="slider-thumb"></div>
+                </div>
+                <div class="slider-labels"><span>1</span><span>6</span><span>10</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="add-actions">
+            <button class="btn-save" data-goto="diary-entries">Сохранить сон</button>
+            <button class="btn-cancel" data-goto="diary-entries">Отмена</button>
+          </div>
+          <div style="height:20px;"></div>
+        </div>
+      </div>
+      <nav class="bottom-nav">
+        <div class="nav-item active" data-screen="diary-entries">
+          <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg></div>
+          <span class="nav-lbl">Дневник</span>
+        </div>
+        <div class="nav-item" data-screen="visualization">
+          <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg></div>
+          <span class="nav-lbl">Визуализация</span>
+        </div>
+        <div class="nav-item" data-screen="analytics">
+          <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <span class="nav-lbl">Аналитика</span>
+        </div>
+        <div class="nav-item" data-screen="profile">
+          <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+          <span class="nav-lbl">Профиль</span>
+        </div>
+      </nav>
+      <div class="safe-bottom"></div>
+    </div>
+
+    <!-- ════════════════════════════
+         SCREEN 5 — VISUALIZATION
+    ════════════════════════════ -->
+    <div class="screen" id="screen-visualization" style="flex-direction:column;">
+      <div class="screen-body">
+        <div class="viz-inner">
+          <div class="screen-heading">Визуализация снов</div>
+          <div class="viz-select">
+            <span class="viz-select-text">Полет над городом (12 мая)</span>
+            <span class="viz-select-arrow">▼</span>
+          </div>
+          <div class="viz-card">
+            <div class="viz-placeholder">
+              <div class="viz-placeholder-icon">🖼️</div>
+              <div class="viz-placeholder-text">Здесь будет сгенерирована сцена от первого лица</div>
+            </div>
+            <div class="viz-card-footer">
+              <span class="viz-card-title">ФОТО-СЦЕНА</span>
+              <button class="btn-create">Создать (1 токен)</button>
+            </div>
+          </div>
+          <div class="viz-card">
+            <div class="viz-placeholder">
+              <div class="viz-placeholder-icon">🎬</div>
+              <div class="viz-placeholder-text">Демо-режим: генерация видео от первого лица</div>
+            </div>
+            <div class="viz-card-footer">
+              <span class="viz-card-title">1-МИН. РОЛИК ОТ 1 ЛИЦА</span>
+              <button class="btn-create">Создать (3 токена)</button>
+            </div>
+          </div>
+          <div class="token-info">
+            <span style="font-size:18px;">🪙</span>
+            <span class="token-info-text">Beta-функция. ИИ-генерация за токены. У вас <b>5 токенов</b></span>
+          </div>
+          <div class="section-label" style="padding:4px 0;">История визуализаций</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="hist-card">
+              <div class="hist-icon">📸</div>
+              <div class="hist-body"><div class="hist-title">Полет над городом</div><div class="hist-meta">12 мая</div><div class="hist-type">Фото-сцена</div></div>
+              <button class="btn-watch">Смотреть</button>
+            </div>
+            <div class="hist-card">
+              <div class="hist-icon">🎬</div>
+              <div class="hist-body"><div class="hist-title">Разговор с тенью</div><div class="hist-meta">11 мая</div><div class="hist-type">Ролик</div></div>
+              <button class="btn-watch">Смотреть</button>
+            </div>
+            <div class="hist-card">
+              <div class="hist-icon">📸</div>
+              <div class="hist-body"><div class="hist-title">Бесконечный коридор</div><div class="hist-meta">10 мая</div><div class="hist-type">Фото-сцена</div></div>
+              <button class="btn-watch">Смотреть</button>
+            </div>
+          </div>
+          <div style="height:16px;"></div>
+        </div>
+      </div>
+      <nav class="bottom-nav">
+        <div class="nav-item" data-screen="diary-entries"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg></div><span class="nav-lbl">Дневник</span></div>
+        <div class="nav-item active" data-screen="visualization"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg></div><span class="nav-lbl">Визуализация</span></div>
+        <div class="nav-item" data-screen="analytics"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="nav-lbl">Аналитика</span></div>
+        <div class="nav-item" data-screen="profile"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><span class="nav-lbl">Профиль</span></div>
+      </nav>
+      <div class="safe-bottom"></div>
+    </div>
+
+    <!-- ════════════════════════════
+         SCREEN 6 — ANALYTICS
+    ════════════════════════════ -->
+    <div class="screen" id="screen-analytics" style="flex-direction:column;">
+      <div class="screen-body">
+        <div class="ana-inner">
+          <div class="screen-heading">Аналитика снов</div>
+          <div class="period-tabs">
+            <div class="period-tab">Неделя</div>
+            <div class="period-tab on">Месяц</div>
+            <div class="period-tab">Год</div>
+          </div>
+          <div class="ana-card">
+            <div class="ana-card-title">Сны по неделям</div>
+            <div class="bar-chart">
+              <div class="bar-col"><div class="bar-fill" style="height:20px;"></div><div class="bar-label">Н1</div></div>
+              <div class="bar-col"><div class="bar-fill" style="height:34px;"></div><div class="bar-label">Н2</div></div>
+              <div class="bar-col"><div class="bar-fill on" style="height:54px;"></div><div class="bar-label">Н3</div></div>
+              <div class="bar-col"><div class="bar-fill" style="height:0px;"></div><div class="bar-label">Н4</div></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;">
+              <span style="font-size:10px;color:rgba(255,255,255,0.2);">Май 2025</span>
+              <span style="font-size:10px;color:rgba(255,255,255,0.2);">Всего: 5</span>
+            </div>
+          </div>
+          <div class="ana-card">
+            <div class="ana-card-title">Типы снов</div>
+            <div class="donut-row">
+              <div class="donut"><div class="donut-hole">5</div></div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div class="legend-row"><div class="legend-dot" style="background:#8B5CF6;"></div><span class="legend-text">Осознанный</span><span class="legend-val">2</span></div>
+                <div class="legend-row"><div class="legend-dot" style="background:#EF4444;"></div><span class="legend-text">Кошмар</span><span class="legend-val">2</span></div>
+                <div class="legend-row"><div class="legend-dot" style="background:rgba(255,255,255,0.15);"></div><span class="legend-text">Обычный</span><span class="legend-val">1</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="ana-card">
+            <div class="ana-card-title">Время засыпания и длительность</div>
+            <div class="sleep-stats">
+              <div class="sleep-stat"><div class="sleep-val">02:24</div><div class="sleep-lbl">Среднее время записи</div></div>
+              <div class="sleep-stat"><div class="sleep-val teal">~6ч</div><div class="sleep-lbl">Ср. длительность сна</div></div>
+            </div>
+          </div>
+          <div style="height:16px;"></div>
+        </div>
+      </div>
+      <nav class="bottom-nav">
+        <div class="nav-item" data-screen="diary-entries"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg></div><span class="nav-lbl">Дневник</span></div>
+        <div class="nav-item" data-screen="visualization"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg></div><span class="nav-lbl">Визуализация</span></div>
+        <div class="nav-item active" data-screen="analytics"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="nav-lbl">Аналитика</span></div>
+        <div class="nav-item" data-screen="profile"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><span class="nav-lbl">Профиль</span></div>
+      </nav>
+      <div class="safe-bottom"></div>
+    </div>
+
+    <!-- ════════════════════════════
+         SCREEN 7 — PROFILE
+    ════════════════════════════ -->
+    <div class="screen" id="screen-profile" style="flex-direction:column;">
+      <div class="screen-body">
+        <div class="prof-inner">
+          <div class="prof-hero">
+            <div class="prof-avatar">С</div>
+            <div class="prof-name">Сновидец</div>
+            <div class="prof-email">user@dreamapp.ru</div>
+          </div>
+          <div class="prof-section-label">Уведомления</div>
+          <div class="prof-section">
+            <div class="prof-row">
+              <div class="prof-row-icon">🌙</div>
+              <div class="prof-row-text">Напоминание записать сон</div>
+              <div class="p-toggle on"><div class="p-toggle-knob"></div></div>
+            </div>
+            <div class="prof-row">
+              <div class="prof-row-icon">⏰</div>
+              <div class="prof-row-text">Время напоминания</div>
+              <div class="prof-row-right">07:30</div>
+            </div>
+            <div class="prof-row">
+              <div class="prof-row-icon">✨</div>
+              <div class="prof-row-text">Советы по осознанным снам</div>
+              <div class="p-toggle off"><div class="p-toggle-knob"></div></div>
+            </div>
+            <div class="prof-row">
+              <div class="prof-row-icon">📊</div>
+              <div class="prof-row-text">Еженедельный отчёт</div>
+              <div class="p-toggle on"><div class="p-toggle-knob"></div></div>
+            </div>
+          </div>
+          <button class="btn-logout" data-goto="login">Выйти из аккаунта</button>
+          <div style="height:16px;"></div>
+        </div>
+      </div>
+      <nav class="bottom-nav">
+        <div class="nav-item" data-screen="diary-entries"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg></div><span class="nav-lbl">Дневник</span></div>
+        <div class="nav-item" data-screen="visualization"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg></div><span class="nav-lbl">Визуализация</span></div>
+        <div class="nav-item" data-screen="analytics"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="nav-lbl">Аналитика</span></div>
+        <div class="nav-item active" data-screen="profile"><div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><span class="nav-lbl">Профиль</span></div>
+      </nav>
+      <div class="safe-bottom"></div>
+    </div>
+
+  </div><!-- /phone-shell -->
+
+  <!-- Desktop arrows -->
+  <div class="nav-arrows" id="nav-arrows">
+    <button class="nav-arrow" id="btn-prev">←</button>
+    <button class="nav-arrow" id="btn-next">→</button>
+  </div>
+  <div class="screen-counter" id="screen-counter"></div>
+
+</div><!-- /app -->
+<script src="script.js"></script>
+</body>
+</html>
