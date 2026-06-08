@@ -10,6 +10,17 @@
   .wrap { position: relative; width: 100%; height: 100%; }
   .wrap img { width: 100%; height: 100%; object-fit: contain; }
   .click-zone { position: absolute; inset: 0; cursor: pointer; }
+
+/* Kill tap highlight everywhere */
+a, button, div, span, input, textarea, svg,
+[class*="btn"], [class*="nav"], [class*="card"],
+[class*="chip"], [class*="tag"], [class*="mood"],
+[class*="toggle"], [class*="sw"], [class*="tab"],
+[class*="accordion"], [class*="add"], [class*="fab"] {
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none;
+}
+
 </style>
 </head>
 <body>
