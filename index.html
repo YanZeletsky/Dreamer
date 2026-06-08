@@ -4,20 +4,193 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Сновидец — Прототип</title>
-<link rel="stylesheet" href="styles.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: #000; font-family: 'Inter', sans-serif; overflow: hidden; }
+
+/* ════════════════════════════════
+   MOBILE — single screen app
+════════════════════════════════ */
+.mobile-app {
+  display: none;
+  width: 100vw;
+  height: 100dvh;
+  height: -webkit-fill-available;
+  position: relative;
+  overflow: hidden;
+  background: #000;
+}
+
+.mobile-app iframe {
+  position: absolute;
+  top: -44px; /* crop the mockup status bar */
+  left: 0;
+  width: 100vw;
+  height: calc(100dvh + 44px);
+  height: calc(-webkit-fill-available + 44px);
+  border: none;
+  background: #000;
+}
+
+/* ════════════════════════════════
+   DESKTOP — horizontal gallery
+════════════════════════════════ */
+.desktop-gallery {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: #0a0a0f;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.desktop-gallery::-webkit-scrollbar { height: 6px; }
+.desktop-gallery::-webkit-scrollbar-track { background: transparent; }
+.desktop-gallery::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+.gallery-track {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding: 40px 60px;
+  height: 100%;
+  width: max-content;
+}
+
+.gallery-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.gallery-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.5px;
+}
+
+.gallery-phone {
+  width: 320px;
+  height: 693px;
+  border-radius: 44px;
+  overflow: hidden;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.8),
+    0 32px 80px rgba(0,0,0,0.8),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  background: #000;
+  flex-shrink: 0;
+}
+
+.gallery-phone iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  pointer-events: none; /* view-only on desktop */
+}
+
+.gallery-phone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ════════════════════════════════
+   RESPONSIVE SWITCH
+════════════════════════════════ */
+@media (max-width: 700px) {
+  .mobile-app { display: block; }
+  .desktop-gallery { display: none; }
+}
+
+@media (min-width: 701px) {
+  .mobile-app { display: none; }
+  .desktop-gallery { display: block; }
+}
+</style>
 </head>
 <body>
-<div id="app">
-  <iframe id="screen-frame" src="1_loading.html"></iframe>
+
+<!-- ══ MOBILE MODE ══ -->
+<div class="mobile-app" id="mobile-app">
+  <iframe id="mobile-frame" src="1_loading.html"></iframe>
 </div>
 
-<div class="nav-arrows">
-  <button class="nav-arrow" id="btn-prev">←</button>
-  <button class="nav-arrow" id="btn-next">→</button>
-</div>
-<div class="screen-label" id="screen-label"></div>
+<!-- ══ DESKTOP MODE ══ -->
+<div class="desktop-gallery" id="desktop-gallery">
+  <div class="gallery-track">
 
-<script src="script.js"></script>
+    <div class="gallery-item">
+      <div class="gallery-phone"><img src="img/screen_loading.png" alt="Загрузка"></div>
+      <span class="gallery-label">1. Загрузка</span>
+    </div>
+
+    <div class="gallery-item">
+      <div class="gallery-phone"><img src="img/screen_login.png" alt="Вход"></div>
+      <span class="gallery-label">2. Вход</span>
+    </div>
+
+    <div class="gallery-item">
+      <div class="gallery-phone"><iframe src="3_diary.html"></iframe></div>
+      <span class="gallery-label">3. Дневник снов</span>
+    </div>
+
+    <div class="gallery-item">
+      <div class="gallery-phone"><iframe src="4_detail.html"></iframe></div>
+      <span class="gallery-label">4. Детали сна</span>
+    </div>
+
+    <div class="gallery-item">
+      <div class="gallery-phone"><iframe src="5_add.html"></iframe></div>
+      <span class="gallery-label">5. Добавление сна</span>
+    </div>
+
+    <div class="gallery-item">
+      <div class="gallery-phone"><iframe src="6_viz.html"></iframe></div>
+      <span class="gallery-label">6. Визуализация</span>
+    </div>
+
+    <div class="gallery-item">
+      <div class="gallery-phone"><iframe src="7_analytics.html"></iframe></div>
+      <span class="gallery-label">7. Аналитика</span>
+    </div>
+
+    <div class="gallery-item">
+      <div class="gallery-phone"><iframe src="8_profile.html"></iframe></div>
+      <span class="gallery-label">8. Профиль</span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── Mobile navigation ── */
+function goTo(screenId) {
+  var frame = document.getElementById('mobile-frame');
+  if (frame) frame.src = screenId + '.html';
+}
+
+/* ── Horizontal scroll with mouse wheel on desktop ── */
+var gallery = document.getElementById('desktop-gallery');
+if (gallery) {
+  gallery.addEventListener('wheel', function(e) {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      gallery.scrollLeft += e.deltaY;
+    }
+  }, { passive: false });
+}
+</script>
+
 </body>
 </html>
