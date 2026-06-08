@@ -6,7 +6,7 @@
 <title>Сновидец — Добавление сна</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
 
 :root {
   --bg:     #000000;
@@ -691,6 +691,78 @@ body {
 })();
 </script>
 
+
+<script>
+(function(){
+  /* ── Mood buttons: single select ── */
+  document.querySelectorAll('.mood-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.mood-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+    });
+  });
+
+  /* ── Chip rows: single select within each .chip-row ── */
+  document.querySelectorAll('.chip-row').forEach(function(row){
+    row.querySelectorAll('.chip').forEach(function(chip){
+      chip.addEventListener('click', function(){
+        row.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+        chip.classList.add('active');
+      });
+    });
+  });
+
+  /* ── Toggles: on/off ── */
+  document.querySelectorAll('.sw').forEach(function(sw){
+    sw.addEventListener('click', function(){
+      sw.classList.toggle('on');
+      sw.classList.toggle('off');
+    });
+  });
+
+  /* ── Slider: drag + tap ── */
+  var track = document.querySelector('.slider-track');
+  var fill  = document.querySelector('.slider-fill');
+  var thumb = document.querySelector('.slider-thumb');
+  var valEl = document.querySelector('.slider-ends .val');
+
+  function setSlider(pct) {
+    pct = Math.max(0, Math.min(100, pct));
+    fill.style.width = pct + '%';
+    thumb.style.left = 'calc(' + pct + '% - 8px)';
+    var val = Math.round(pct / 10);
+    if (val < 1) val = 1;
+    if (val > 10) val = 10;
+    if (valEl) valEl.textContent = val + ' / 10';
+  }
+
+  function pctFromEvent(e) {
+    var rect = track.getBoundingClientRect();
+    var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    return ((clientX - rect.left) / rect.width) * 100;
+  }
+
+  if (track) {
+    track.addEventListener('click', function(e){ setSlider(pctFromEvent(e)); });
+
+    var dragging = false;
+    thumb.addEventListener('mousedown', function(){ dragging = true; });
+    thumb.addEventListener('touchstart', function(){ dragging = true; }, {passive: true});
+    document.addEventListener('mousemove', function(e){ if(dragging) setSlider(pctFromEvent(e)); });
+    document.addEventListener('touchmove', function(e){ if(dragging) setSlider(pctFromEvent(e)); }, {passive: true});
+    document.addEventListener('mouseup', function(){ dragging = false; });
+    document.addEventListener('touchend', function(){ dragging = false; });
+  }
+
+  /* ── Format tabs ── */
+  document.querySelectorAll('.format-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.format-tab').forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+    });
+  });
+})();
+</script>
 
 <script>
 (function(){
