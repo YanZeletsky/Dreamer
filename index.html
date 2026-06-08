@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Сновидец — Прототип</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
@@ -27,7 +26,7 @@ html, body { width: 100%; height: 100%; background: #000; font-family: 'Inter', 
 
 .mobile-app iframe {
   position: absolute;
-  top: -44px; /* crop the mockup status bar */
+  top: -44px;
   left: 0;
   width: 100vw;
   height: calc(100dvh + 44px);
@@ -69,6 +68,7 @@ html, body { width: 100%; height: 100%; background: #000; font-family: 'Inter', 
   align-items: center;
   gap: 16px;
   flex-shrink: 0;
+  scroll-margin-left: 40px;
 }
 
 .gallery-label {
@@ -96,7 +96,6 @@ html, body { width: 100%; height: 100%; background: #000; font-family: 'Inter', 
   width: 100%;
   height: 100%;
   border: none;
-  pointer-events: none; /* view-only on desktop */
 }
 
 .gallery-phone img {
@@ -121,51 +120,51 @@ html, body { width: 100%; height: 100%; background: #000; font-family: 'Inter', 
 </head>
 <body>
 
-<!-- ══ MOBILE MODE ══ -->
+<!-- ══ MOBILE ══ -->
 <div class="mobile-app" id="mobile-app">
   <iframe id="mobile-frame" src="1_loading.html"></iframe>
 </div>
 
-<!-- ══ DESKTOP MODE ══ -->
+<!-- ══ DESKTOP ══ -->
 <div class="desktop-gallery" id="desktop-gallery">
   <div class="gallery-track">
 
-    <div class="gallery-item">
+    <div class="gallery-item" id="g-1_loading">
       <div class="gallery-phone"><img src="img/screen_loading.png" alt="Загрузка"></div>
       <span class="gallery-label">1. Загрузка</span>
     </div>
 
-    <div class="gallery-item">
+    <div class="gallery-item" id="g-2_login">
       <div class="gallery-phone"><img src="img/screen_login.png" alt="Вход"></div>
       <span class="gallery-label">2. Вход</span>
     </div>
 
-    <div class="gallery-item">
+    <div class="gallery-item" id="g-3_diary">
       <div class="gallery-phone"><iframe src="3_diary.html"></iframe></div>
       <span class="gallery-label">3. Дневник снов</span>
     </div>
 
-    <div class="gallery-item">
+    <div class="gallery-item" id="g-4_detail">
       <div class="gallery-phone"><iframe src="4_detail.html"></iframe></div>
       <span class="gallery-label">4. Детали сна</span>
     </div>
 
-    <div class="gallery-item">
+    <div class="gallery-item" id="g-5_add">
       <div class="gallery-phone"><iframe src="5_add.html"></iframe></div>
       <span class="gallery-label">5. Добавление сна</span>
     </div>
 
-    <div class="gallery-item">
+    <div class="gallery-item" id="g-6_viz">
       <div class="gallery-phone"><iframe src="6_viz.html"></iframe></div>
       <span class="gallery-label">6. Визуализация</span>
     </div>
 
-    <div class="gallery-item">
+    <div class="gallery-item" id="g-7_analytics">
       <div class="gallery-phone"><iframe src="7_analytics.html"></iframe></div>
       <span class="gallery-label">7. Аналитика</span>
     </div>
 
-    <div class="gallery-item">
+    <div class="gallery-item" id="g-8_profile">
       <div class="gallery-phone"><iframe src="8_profile.html"></iframe></div>
       <span class="gallery-label">8. Профиль</span>
     </div>
@@ -174,13 +173,19 @@ html, body { width: 100%; height: 100%; background: #000; font-family: 'Inter', 
 </div>
 
 <script>
-/* ── Mobile navigation ── */
 function goTo(screenId) {
   var frame = document.getElementById('mobile-frame');
-  if (frame) frame.src = screenId + '.html';
+  if (frame && window.innerWidth <= 700) {
+    frame.src = screenId + '.html';
+    return;
+  }
+  var target = document.getElementById('g-' + screenId);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+  }
 }
 
-/* ── Horizontal scroll with mouse wheel on desktop ── */
+/* Колёсико мыши → горизонтальный скролл */
 var gallery = document.getElementById('desktop-gallery');
 if (gallery) {
   gallery.addEventListener('wheel', function(e) {
