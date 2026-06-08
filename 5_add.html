@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сновидец — Добавление сна</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #000000;
+  --purple: #8B5CF6;
+  --teal:   #14B8A6;
+  --glass:  rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.08);
+  --text:   rgba(255,255,255,0.88);
+  --muted:  rgba(255,255,255,0.35);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ── Phone shell ── */
+.phone {
+  width: 320px; height: 693px;
+  background: #000; border-radius: 44px; overflow: hidden;
+  border: 1.5px solid rgba(255,255,255,0.10);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.8), 0 32px 80px rgba(0,0,0,0.8),
+              inset 0 1px 0 rgba(255,255,255,0.06);
+  position: relative; isolation: isolate;
+}
+.phone-inner {
+  width: 390px; height: 844px;
+  transform: scale(calc(320/390));
+  transform-origin: top left;
+  position: relative;
+}
+
+/* ── Atmosphere ── */
+.nebula { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.nebula::before {
+  content: ''; position: absolute; top: -80px; right: -60px;
+  width: 300px; height: 300px;
+  background: radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.nebula::after {
+  content: ''; position: absolute; bottom: 160px; left: -80px;
+  width: 260px; height: 260px;
+  background: radial-gradient(ellipse, rgba(20,184,166,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+/* ── Dynamic Island & Status Bar ── */
+.dynamic-island {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  width: 126px; height: 37px; background: #000; border-radius: 20px; z-index: 20;
+}
+.status-bar {
+  position: relative; z-index: 10; height: 54px; padding: 16px 28px 0;
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.status-bar .time { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.85); letter-spacing: -0.3px; }
+.status-icons { display: flex; align-items: center; gap: 6px; }
+
+/* ── Layout ── */
+.phone-layout { display: flex; flex-direction: column; height: 844px; position: relative; }
+.scroll-area {
+  flex: 1; overflow-y: auto; min-height: 0;
+  padding: 4px 22px 116px;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* ── Bottom Nav ── */
+.bottom-nav {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
+  padding: 0 4px 34px;
+  background: rgba(0,0,0,0.88); backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.nav-inner { display: flex; justify-content: space-around; align-items: center; padding-top: 8px; }
+.nav-item-s {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 5px 8px; border-radius: 14px; flex: 1;
+}
+.nav-icon-wrap-s {
+  width: 32px; height: 26px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-label-s { font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.28); white-space: nowrap; }
+.nav-active .nav-icon-wrap-s { background: rgba(139,92,246,0.2); }
+.nav-active .nav-label-s { color: #8B5CF6; font-weight: 600; }
+
+/* ════════════════════════════════
+   SCREEN — ADD DREAM
+════════════════════════════════ */
+
+/* Page header */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 6px; margin-bottom: 22px;
+}
+.page-title {
+  font-size: 24px; font-weight: 800; color: #fff; letter-spacing: -0.8px;
+}
+.page-date {
+  font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.3);
+  padding: 5px 11px; border-radius: 99px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ── Field label ── */
+.field-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase;
+  color: rgba(255,255,255,0.28); margin-bottom: 8px; padding-left: 2px;
+}
+
+/* ── Format selector (text / audio) ── */
+.format-tabs {
+  display: flex; gap: 8px; margin-bottom: 18px;
+  background: rgba(255,255,255,0.04); border-radius: 16px; padding: 4px;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+.format-tab {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 11px 8px; border-radius: 12px;
+  font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.35);
+  cursor: pointer; transition: all 0.18s ease;
+}
+.format-tab.active {
+  background: rgba(139,92,246,0.18);
+  color: #C4B5FD;
+  box-shadow: 0 1px 0 rgba(139,92,246,0.15);
+}
+
+/* ── Textarea ── */
+.dream-textarea {
+  width: 100%; min-height: 110px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 18px; padding: 14px 16px;
+  margin-bottom: 18px; position: relative;
+}
+.dream-textarea .ph {
+  font-size: 13px; color: rgba(255,255,255,0.2); line-height: 1.55;
+}
+.dream-textarea .counter {
+  position: absolute; bottom: 12px; right: 14px;
+  font-size: 10px; color: rgba(255,255,255,0.18); font-weight: 500;
+}
+
+/* ── Snapshot field ── */
+.snapshot-field {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 16px; padding: 13px 16px; margin-bottom: 20px;
+}
+.snapshot-field .ph { font-size: 13px; color: rgba(255,255,255,0.2); }
+
+/* ── Mood row ── */
+.mood-row {
+  display: flex; gap: 8px; margin-bottom: 20px;
+}
+.mood-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px 4px; border-radius: 14px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer; transition: all 0.15s ease;
+}
+.mood-btn.active {
+  background: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.35);
+}
+.mood-emoji { font-size: 18px; line-height: 1; }
+.mood-label { font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.35); }
+.mood-btn.active .mood-label { color: rgba(196,181,253,0.8); }
+
+/* ── Accordion ── */
+.accordion {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 18px; overflow: hidden; margin-bottom: 20px;
+}
+.accordion-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; cursor: pointer;
+}
+.accordion-header-left { display: flex; align-items: center; gap: 10px; }
+.accordion-icon {
+  width: 30px; height: 30px; border-radius: 10px;
+  background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.18);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.accordion-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.72); }
+.accordion-chevron {
+  transition: transform 0.22s ease;
+  color: rgba(255,255,255,0.25);
+  flex-shrink: 0;
+}
+.accordion-chevron.open { transform: rotate(180deg); }
+
+.accordion-body {
+  display: none; padding: 0 16px 16px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.accordion-body.open { display: block; }
+
+/* ── Param block inside accordion ── */
+.param-block { padding-top: 14px; }
+.param-block + .param-block { border-top: 1px solid rgba(255,255,255,0.05); padding-top: 14px; margin-top: 2px; }
+
+.param-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.9px; text-transform: uppercase;
+  color: rgba(255,255,255,0.22); margin-bottom: 9px;
+}
+
+/* Chips */
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 5px 10px; border-radius: 99px; cursor: pointer;
+  font-size: 11px; font-weight: 600;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.45); transition: all 0.14s ease;
+}
+.chip.active {
+  background: rgba(139,92,246,0.22); border-color: rgba(139,92,246,0.55);
+  color: #C4B5FD;
+}
+
+/* Tags */
+.tags-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.tag-chip {
+  padding: 4px 9px; border-radius: 8px; cursor: pointer;
+  font-size: 10px; font-weight: 600;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+  color: rgba(255,255,255,0.38); transition: all 0.14s ease;
+}
+.tag-chip:hover, .tag-chip.sel {
+  background: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.3);
+  color: rgba(196,181,253,0.85);
+}
+
+/* Custom tag input */
+.tag-input-wrap {
+  display: inline-flex; align-items: center;
+  padding: 4px 9px; border-radius: 8px;
+  background: rgba(139,92,246,0.07);
+  border: 1px dashed rgba(139,92,246,0.3);
+  gap: 4px; cursor: text;
+}
+.tag-input {
+  background: none; border: none; outline: none;
+  font-size: 10px; font-weight: 600; color: rgba(196,181,253,0.8);
+  font-family: 'Inter', sans-serif;
+  width: 70px; min-width: 20px;
+  caret-color: #8B5CF6;
+}
+.tag-input::placeholder { color: rgba(139,92,246,0.45); }
+.tag-input-plus {
+  font-size: 11px; color: rgba(139,92,246,0.5); line-height: 1; flex-shrink: 0;
+}
+.tag-chip.custom {
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.tag-remove {
+  font-size: 11px; line-height: 1;
+  color: rgba(196,181,253,0.4);
+  cursor: pointer; flex-shrink: 0;
+  transition: color 0.12s ease;
+}
+.tag-remove:hover { color: rgba(196,181,253,0.9); }
+
+/* Toggle row inside accordion */
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0;
+}
+.toggle-row + .toggle-row { border-top: 1px solid rgba(255,255,255,0.05); }
+.toggle-text { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.6); }
+.sw {
+  width: 38px; height: 22px; border-radius: 11px;
+  position: relative; flex-shrink: 0; cursor: pointer;
+}
+.sw.on  { background: linear-gradient(90deg, #8B5CF6, #6366F1); }
+.sw.off { background: rgba(255,255,255,0.1); }
+.sw-knob {
+  position: absolute; top: 3px;
+  width: 16px; height: 16px; border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.sw.on  .sw-knob { left: calc(100% - 19px); }
+.sw.off .sw-knob { left: 3px; }
+
+/* Slider */
+.slider-wrap { padding-top: 4px; }
+.slider-track {
+  height: 5px; border-radius: 99px; background: rgba(255,255,255,0.09);
+  position: relative; margin-bottom: 8px;
+}
+.slider-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 55%; border-radius: 99px;
+  background: linear-gradient(90deg, #6366F1, #8B5CF6);
+}
+.slider-thumb {
+  position: absolute; left: calc(55% - 8px); top: -5.5px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #C4B5FD; border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(139,92,246,0.5);
+}
+.slider-ends {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: rgba(255,255,255,0.22); font-weight: 500;
+}
+.slider-ends .val { color: rgba(196,181,253,0.75); font-weight: 700; }
+
+/* ── Action buttons ── */
+.actions { display: flex; flex-direction: column; gap: 10px; }
+.btn-save {
+  height: 54px; border-radius: 18px;
+  background: linear-gradient(135deg, #8B5CF6, #6366F1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: #fff;
+  box-shadow: 0 8px 28px rgba(139,92,246,0.38);
+  cursor: pointer;
+}
+.btn-cancel {
+  height: 48px; border-radius: 16px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.38);
+  cursor: pointer;
+}
+
+/* Mobile fullscreen override */
+@media (max-width: 500px) {
+  body { align-items: flex-start; }
+  .phone {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .phone-inner {
+    width: 100vw !important;
+    height: 100vh !important;
+    transform: none !important;
+  }
+  .phone-layout {
+    height: 100vh !important;
+  }
+  .dynamic-island { display: none; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="phone-inner">
+    <div class="nebula"></div>
+    <div class="dynamic-island"></div>
+    <div class="phone-layout">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">9:41</span>
+        <div class="status-icons">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+            <rect x="0"    y="7"   width="3" height="5"   rx="1" fill="white" opacity="0.6"/>
+            <rect x="4.5"  y="5"   width="3" height="7"   rx="1" fill="white" opacity="0.6"/>
+            <rect x="9"    y="2.5" width="3" height="9.5" rx="1" fill="white" opacity="0.6"/>
+            <rect x="13.5" y="0"   width="3" height="12"  rx="1" fill="white" opacity="0.2"/>
+          </svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity="0.35"/>
+            <rect x="1.5" y="1.5" width="16" height="9"  rx="2.5" fill="white"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="scroll-area">
+
+        <!-- Header -->
+        <div class="page-header">
+          <div class="page-title">Новый сон</div>
+          <div class="page-date">21 мая</div>
+        </div>
+
+        <!-- Format selector -->
+        <div class="field-label">Формат записи</div>
+        <div class="format-tabs">
+          <div class="format-tab active">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="2" y="2" width="12" height="12" rx="2.5" stroke="#C4B5FD" stroke-width="1.35"/>
+              <path d="M4.5 6h7M4.5 9h5" stroke="#C4B5FD" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            Текст
+          </div>
+          <div class="format-tab">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.35"/>
+              <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="rgba(255,255,255,0.4)" stroke-width="1.3" stroke-linecap="round"/>
+              <circle cx="8" cy="8" r="6.25" stroke="rgba(255,255,255,0.15)" stroke-width="1.2" stroke-dasharray="2 2"/>
+            </svg>
+            Аудио
+          </div>
+        </div>
+
+        <!-- Dream text -->
+        <div class="field-label">Описание</div>
+        <div class="dream-textarea">
+          <div class="ph">Опишите сон — локации, персонажей, события, эмоции…</div>
+          <div class="counter">0 / 2000</div>
+        </div>
+
+        <!-- Snapshot -->
+        <div class="field-label">Стоп-кадр</div>
+        <div class="snapshot-field">
+          <div class="ph">Самый яркий момент — одним предложением…</div>
+        </div>
+
+        <!-- Mood -->
+        <div class="field-label">Настроение</div>
+        <div class="mood-row">
+          <div class="mood-btn">
+            <span class="mood-emoji">😨</span>
+            <span class="mood-label">Страх</span>
+          </div>
+          <div class="mood-btn">
+            <span class="mood-emoji">😔</span>
+            <span class="mood-label">Грусть</span>
+          </div>
+          <div class="mood-btn active">
+            <span class="mood-emoji">😌</span>
+            <span class="mood-label">Покой</span>
+          </div>
+          <div class="mood-btn">
+            <span class="mood-emoji">😄</span>
+            <span class="mood-label">Радость</span>
+          </div>
+          <div class="mood-btn">
+            <span class="mood-emoji">😮</span>
+            <span class="mood-label">Удивление</span>
+          </div>
+        </div>
+
+        <!-- Accordion: extra params -->
+        <div class="accordion" id="acc">
+          <div class="accordion-header" id="accHeader">
+            <div class="accordion-header-left">
+              <div class="accordion-icon">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <path d="M2 5h11M2 10h11" stroke="#C4B5FD" stroke-width="1.3" stroke-linecap="round"/>
+                  <circle cx="5.5" cy="5" r="1.5" fill="#C4B5FD"/>
+                  <circle cx="9.5" cy="10" r="1.5" fill="#C4B5FD"/>
+                </svg>
+              </div>
+              <span class="accordion-title">Дополнительные параметры</span>
+            </div>
+            <svg class="accordion-chevron" id="accChevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <div class="accordion-body" id="accBody">
+
+            <!-- Длительность -->
+            <div class="param-block">
+              <div class="param-title">Длительность</div>
+              <div class="chip-row">
+                <div class="chip">Мгновение</div>
+                <div class="chip">Короткий</div>
+                <div class="chip active">Обычный</div>
+                <div class="chip">Долгий</div>
+              </div>
+            </div>
+
+            <!-- Время суток -->
+            <div class="param-block">
+              <div class="param-title">Время суток</div>
+              <div class="chip-row">
+                <div class="chip">День</div>
+                <div class="chip active">Ночь</div>
+                <div class="chip">Неопределённое</div>
+              </div>
+            </div>
+
+            <!-- Реализм -->
+            <div class="param-block">
+              <div class="param-title">Реализм</div>
+              <div class="chip-row">
+                <div class="chip">Реальный</div>
+                <div class="chip active">Странный</div>
+                <div class="chip">Сюрреализм</div>
+              </div>
+            </div>
+
+            <!-- Теги -->
+            <div class="param-block">
+              <div class="param-title">Теги</div>
+              <div class="tags-wrap">
+                <div class="tag-chip sel">#полёт</div>
+                <div class="tag-chip">#лес</div>
+                <div class="tag-chip">#город</div>
+                <div class="tag-chip">#вода</div>
+                <div class="tag-chip">#страх</div>
+                <div class="tag-chip">#незнакомец</div>
+                <div class="tag-chip">#зеркало</div>
+                <div class="tag-chip">#музыка</div>
+                <div class="tag-chip">#падение</div>
+                <div class="tag-chip">#тень</div>
+                <div class="tag-input-wrap" id="tagInputWrap">
+                  <span class="tag-input-plus">+</span>
+                  <input class="tag-input" id="tagInput" placeholder="свой тег" maxlength="24"/>
+                </div>
+              </div>
+            </div>
+
+            <!-- Тогглы -->
+            <div class="param-block">
+              <div class="param-title">Особенности</div>
+              <div class="toggle-row">
+                <span class="toggle-text">Осознанный сон</span>
+                <div class="sw on"><div class="sw-knob"></div></div>
+              </div>
+              <div class="toggle-row">
+                <span class="toggle-text">Нарушения физики</span>
+                <div class="sw off"><div class="sw-knob"></div></div>
+              </div>
+              <div class="toggle-row">
+                <span class="toggle-text">Слышал звуки / музыку</span>
+                <div class="sw off"><div class="sw-knob"></div></div>
+              </div>
+            </div>
+
+            <!-- Слайдер -->
+            <div class="param-block">
+              <div class="param-title">Эмоциональная яркость</div>
+              <div class="slider-wrap">
+                <div class="slider-track">
+                  <div class="slider-fill"></div>
+                  <div class="slider-thumb"></div>
+                </div>
+                <div class="slider-ends">
+                  <span>Слабая</span>
+                  <span class="val">6 / 10</span>
+                  <span>Сильная</span>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /accordion-body -->
+        </div><!-- /accordion -->
+
+        <!-- Actions -->
+        <div class="actions">
+          <div class="btn-save">Сохранить сон</div>
+          <div class="btn-cancel">Отмена</div>
+        </div>
+
+      </div><!-- /scroll-area -->
+
+      <!-- Bottom Navigation -->
+      <div class="bottom-nav">
+        <div class="nav-inner">
+          <div class="nav-item-s nav-active">
+            <div class="nav-icon-wrap-s">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <path d="M5 3h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="#8B5CF6" stroke-width="1.6"/>
+                <path d="M7 7h6M7 10h6M7 13h4" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="nav-label-s" style="color:#8B5CF6;font-weight:600;">Дневник</span>
+          </div>
+          <div class="nav-item-s">
+            <div class="nav-icon-wrap-s">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="3" stroke="rgba(255,255,255,0.3)" stroke-width="1.6"/>
+                <path d="M10 2v2M10 16v2M2 10h2M16 10h2" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="nav-label-s">Визуализация</span>
+          </div>
+          <div class="nav-item-s">
+            <div class="nav-icon-wrap-s">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <rect x="3"   y="12" width="3" height="5"  rx="1" fill="rgba(255,255,255,0.28)"/>
+                <rect x="8.5" y="8"  width="3" height="9"  rx="1" fill="rgba(255,255,255,0.28)"/>
+                <rect x="14"  y="4"  width="3" height="13" rx="1" fill="rgba(255,255,255,0.28)"/>
+              </svg>
+            </div>
+            <span class="nav-label-s">Аналитика</span>
+          </div>
+          <div class="nav-item-s">
+            <div class="nav-icon-wrap-s">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="7" r="3.25" stroke="rgba(255,255,255,0.28)" stroke-width="1.6"/>
+                <path d="M3.5 17c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5" stroke="rgba(255,255,255,0.28)" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="nav-label-s">Профиль</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Accordion
+  const header  = document.getElementById('accHeader');
+  const body    = document.getElementById('accBody');
+  const chevron = document.getElementById('accChevron');
+  header.addEventListener('click', function() {
+    body.classList.toggle('open');
+    chevron.classList.toggle('open');
+  });
+
+  // Custom tags
+  const input   = document.getElementById('tagInput');
+  const wrap    = document.querySelector('.tags-wrap');
+  const inputWrap = document.getElementById('tagInputWrap');
+
+  function addTag(raw) {
+    let val = raw.trim().replace(/\s+/g, '_');
+    if (!val) return;
+    if (!val.startsWith('#')) val = '#' + val;
+
+    // Prevent duplicates
+    const existing = wrap.querySelectorAll('.tag-chip');
+    for (const t of existing) {
+      if (t.textContent.trim() === val) return;
+    }
+
+    const chip = document.createElement('div');
+    chip.className = 'tag-chip custom sel';
+
+    const label = document.createElement('span');
+    label.textContent = val;
+    chip.appendChild(label);
+
+    const x = document.createElement('span');
+    x.className = 'tag-remove';
+    x.textContent = '×';
+    x.addEventListener('click', function(e) {
+      e.stopPropagation();
+      chip.remove();
+    });
+    chip.appendChild(x);
+
+    // Click to toggle sel
+    chip.addEventListener('click', function() {
+      chip.classList.toggle('sel');
+    });
+
+    // Insert before the input wrapper
+    wrap.insertBefore(chip, inputWrap);
+    input.value = '';
+  }
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
+      e.preventDefault();
+      addTag(input.value);
+    }
+    if (e.key === 'Backspace' && input.value === '') {
+      // Remove last custom tag
+      const customs = wrap.querySelectorAll('.tag-chip.custom');
+      if (customs.length) customs[customs.length - 1].remove();
+    }
+  });
+
+  // Click on wrapper focuses input
+  inputWrap.addEventListener('click', function() { input.focus(); });
+
+  // Existing tag chips toggle
+  wrap.querySelectorAll('.tag-chip:not(.custom)').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      chip.classList.toggle('sel');
+    });
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  var map = {
+    'Дневник':      '3_diary',
+    'Визуализация': '6_viz',
+    'Аналитика':    '7_analytics',
+    'Профиль':      '8_profile'
+  };
+  // Bottom nav clicks
+  document.querySelectorAll('.nav-item-s').forEach(function(item){
+    item.style.cursor = 'pointer';
+    var label = item.querySelector('.nav-label-s');
+    if(label){
+      var txt = label.textContent.trim();
+      if(map[txt]){
+        item.addEventListener('click', function(){ parent.goTo(map[txt]); });
+      }
+    }
+  });
+  
+  // Save & Cancel buttons → diary
+  document.querySelectorAll('button, .btn-save, .btn-cancel, [class*="save"], [class*="cancel"], [class*="primary-btn"], [class*="secondary"]').forEach(function(btn){
+    var txt = btn.textContent.trim().toLowerCase();
+    if(txt.includes('сохранить') || txt.includes('отмена') || txt.includes('назад')){
+      btn.style.cursor = 'pointer';
+      btn.addEventListener('click', function(){ parent.goTo('3_diary'); });
+    }
+  });
+  // Back arrow if any
+  var backBtn = document.querySelector('.back-btn') || document.querySelector('[class*="back"]');
+  if(backBtn){
+    backBtn.style.cursor = 'pointer';
+    backBtn.addEventListener('click', function(){ parent.goTo('3_diary'); });
+  }
+
+})();
+</script>
+
+</body>
+</html>

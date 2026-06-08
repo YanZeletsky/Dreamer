@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сновидец — Визуализация снов</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #000000;
+  --purple: #8B5CF6;
+  --teal:   #14B8A6;
+  --amber:  #F59E0B;
+  --text:   rgba(255,255,255,0.88);
+  --muted:  rgba(255,255,255,0.35);
+  --dim:    rgba(255,255,255,0.10);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ── Phone shell ── */
+.phone {
+  width: 320px; height: 693px;
+  background: #000;
+  border-radius: 44px; overflow: hidden;
+  border: 1.5px solid rgba(255,255,255,0.10);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.8), 0 32px 80px rgba(0,0,0,0.8),
+              inset 0 1px 0 rgba(255,255,255,0.06);
+  position: relative; isolation: isolate;
+}
+.phone-inner {
+  width: 390px; height: 844px;
+  transform: scale(calc(320/390));
+  transform-origin: top left;
+  position: relative;
+}
+
+/* ── Background atmosphere ── */
+.nebula { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.nebula::before {
+  content: ''; position: absolute; top: -100px; right: -80px;
+  width: 360px; height: 360px;
+  background: radial-gradient(ellipse, rgba(139,92,246,0.15) 0%, transparent 68%);
+  border-radius: 50%;
+}
+.nebula::after {
+  content: ''; position: absolute; bottom: 160px; left: -100px;
+  width: 300px; height: 300px;
+  background: radial-gradient(ellipse, rgba(20,184,166,0.07) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.stars { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.star  { position: absolute; background: white; border-radius: 50%; }
+
+/* ── Dynamic Island & Status Bar ── */
+.dynamic-island {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  width: 126px; height: 37px; background: #000; border-radius: 20px; z-index: 20;
+}
+.status-bar {
+  position: relative; z-index: 10; height: 54px; padding: 16px 28px 0;
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.status-bar .time { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.85); letter-spacing: -0.3px; }
+.status-icons { display: flex; align-items: center; gap: 6px; }
+
+/* ── Layout ── */
+.phone-layout { display: flex; flex-direction: column; height: 844px; position: relative; }
+.scroll-area {
+  flex: 1; overflow-y: auto; position: relative;
+  padding: 4px 22px 112px;
+  min-height: 0;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* ── Bottom Nav ── */
+.bottom-nav {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
+  padding: 0 4px 34px;
+  background: rgba(0,0,0,0.88); backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.nav-inner { display: flex; justify-content: space-around; align-items: center; padding-top: 8px; }
+.nav-item-s {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 5px 8px; border-radius: 14px; flex: 1;
+}
+.nav-icon-wrap-s {
+  width: 32px; height: 26px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-label-s { font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.28); white-space: nowrap; }
+.nav-active .nav-icon-wrap-s { background: rgba(139,92,246,0.2); }
+.nav-active .nav-label-s { color: #8B5CF6; font-weight: 600; }
+
+/* ════════════════════════════════
+   SCREEN — VISUALIZATION
+════════════════════════════════ */
+
+/* Page header — без иконки справа */
+.vis-header {
+  padding-top: 6px;
+  margin-bottom: 20px;
+}
+.vis-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.8px;
+  line-height: 1.1;
+}
+
+/* Dream selector */
+.vis-selector {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: 20px; margin-bottom: 22px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer; transition: background 0.15s ease;
+}
+.vis-selector:hover { background: rgba(255,255,255,0.07); }
+.vis-selector-icon {
+  width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(99,102,241,0.2));
+  border: 1px solid rgba(139,92,246,0.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.vis-selector-text { flex: 1; min-width: 0; }
+.vis-selector-label { font-size: 11px; font-weight: 500; color: var(--muted); margin-bottom: 2px; }
+.vis-selector-value { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.88); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vis-selector-arrow { flex-shrink: 0; opacity: 0.35; }
+
+/* Mode section label — фиолетовый */
+.vis-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(139,92,246,0.8);
+  margin-bottom: 12px;
+}
+
+/* Mode toggle tabs */
+.vis-tabs {
+  display: flex; gap: 8px; margin-bottom: 16px;
+  background: rgba(255,255,255,0.04); border-radius: 16px; padding: 4px;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+.vis-tab {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 8px; border-radius: 12px;
+  font-size: 12px; font-weight: 600; color: var(--muted);
+  cursor: pointer; transition: all 0.18s ease;
+}
+.vis-tab.active {
+  background: rgba(139,92,246,0.2);
+  color: #C4B5FD;
+  box-shadow: 0 1px 0 rgba(139,92,246,0.15);
+}
+.vis-tab svg { opacity: 0.7; }
+.vis-tab.active svg { opacity: 1; }
+
+/* Preview canvas */
+.vis-canvas {
+  height: 178px; border-radius: 22px; margin-bottom: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  position: relative; overflow: hidden;
+}
+.vis-canvas-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 110%, rgba(139,92,246,0.12) 0%, transparent 60%);
+}
+.vis-canvas-icon {
+  width: 52px; height: 52px; border-radius: 18px;
+  background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.18);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; z-index: 1;
+}
+.vis-canvas-hint {
+  font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.22);
+  text-align: center; line-height: 1.4; position: relative; z-index: 1;
+}
+
+/* Generate button */
+.vis-btn-generate {
+  height: 54px; border-radius: 18px; margin-bottom: 14px;
+  background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: 15px; font-weight: 700; color: #fff;
+  box-shadow: 0 8px 28px rgba(139,92,246,0.38);
+  cursor: pointer; transition: opacity 0.15s ease;
+}
+.vis-btn-generate:hover { opacity: 0.9; }
+
+/* Info note */
+.vis-note {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 14px; margin-bottom: 22px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+}
+.vis-note-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(139,92,246,0.6); flex-shrink: 0;
+}
+.vis-note-text { font-size: 11px; color: rgba(255,255,255,0.32); line-height: 1.45; }
+.vis-note-text strong { color: rgba(255,255,255,0.52); }
+
+/* History label — фиолетовый */
+.vis-history-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(139,92,246,0.8);
+  margin-bottom: 10px;
+}
+
+.vis-history-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; margin-bottom: 8px; border-radius: 18px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+  cursor: pointer; transition: background 0.15s ease;
+}
+.vis-history-item:hover { background: rgba(255,255,255,0.07); }
+.vis-hist-thumb {
+  width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.vis-hist-thumb.photo-t { background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.18); }
+.vis-hist-thumb.video-t { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.16); }
+.vis-hist-meta { flex: 1; min-width: 0; }
+.vis-hist-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.82); }
+.vis-hist-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.vis-hist-badge {
+  padding: 4px 9px; border-radius: 8px; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.4px; flex-shrink: 0;
+}
+.vis-hist-badge.photo-b { background: rgba(139,92,246,0.14); color: #C4B5FD; }
+.vis-hist-badge.video-b { background: rgba(59,130,246,0.12); color: #93C5FD; }
+
+/* Mobile fullscreen override */
+@media (max-width: 500px) {
+  body { align-items: flex-start; }
+  .phone {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .phone-inner {
+    width: 100vw !important;
+    height: 100vh !important;
+    transform: none !important;
+  }
+  .phone-layout {
+    height: 100vh !important;
+  }
+  .dynamic-island { display: none; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="phone-inner">
+    <div class="nebula"></div>
+    <div class="stars">
+      <div class="star" style="width:1.5px;height:1.5px;top:6%;left:15%;opacity:0.55"></div>
+      <div class="star" style="width:1px;height:1px;top:11%;left:72%;opacity:0.4"></div>
+      <div class="star" style="width:2px;height:2px;top:20%;left:40%;opacity:0.5"></div>
+      <div class="star" style="width:1.5px;height:1.5px;top:34%;left:85%;opacity:0.45"></div>
+      <div class="star" style="width:1px;height:1px;top:28%;left:8%;opacity:0.35"></div>
+    </div>
+
+    <div class="dynamic-island"></div>
+    <div class="phone-layout">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">9:41</span>
+        <div class="status-icons">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+            <rect x="0" y="7" width="3" height="5" rx="1" fill="white" opacity="0.6"/>
+            <rect x="4.5" y="5" width="3" height="7" rx="1" fill="white" opacity="0.6"/>
+            <rect x="9" y="2.5" width="3" height="9.5" rx="1" fill="white" opacity="0.6"/>
+            <rect x="13.5" y="0" width="3" height="12" rx="1" fill="white" opacity="0.2"/>
+          </svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity="0.35"/>
+            <rect x="1.5" y="1.5" width="16" height="9" rx="2.5" fill="white"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="scroll-area">
+
+        <!-- Header — без иконки справа -->
+        <div class="vis-header">
+          <div class="vis-title">Оживить сон</div>
+        </div>
+
+        <!-- Dream selector -->
+        <div class="vis-selector">
+          <div class="vis-selector-icon">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <path d="M5 3h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="#C4B5FD" stroke-width="1.5"/>
+              <path d="M7 7h6M7 10h6M7 13h4" stroke="#C4B5FD" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="vis-selector-text">
+            <div class="vis-selector-label">Запись из дневника</div>
+            <div class="vis-selector-value">Полёт над городом · 12 мая</div>
+          </div>
+          <div class="vis-selector-arrow">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M5 7l3 3 3-3" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Mode tabs -->
+        <div class="vis-section-label">Режим</div>
+        <div class="vis-tabs">
+          <div class="vis-tab active">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <rect x="1" y="1" width="12" height="12" rx="2.5" stroke="#C4B5FD" stroke-width="1.3"/>
+              <circle cx="7" cy="7" r="2.5" stroke="#C4B5FD" stroke-width="1.3"/>
+            </svg>
+            Фото-сцена
+          </div>
+          <div class="vis-tab">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <rect x="1" y="2.5" width="9" height="9" rx="2" stroke="rgba(255,255,255,0.45)" stroke-width="1.3"/>
+              <path d="M10 5l3-1.5v7L10 9" stroke="rgba(255,255,255,0.45)" stroke-width="1.3" stroke-linejoin="round"/>
+            </svg>
+            Видео-ролик
+          </div>
+        </div>
+
+        <!-- Preview canvas -->
+        <div class="vis-canvas">
+          <div class="vis-canvas-glow"></div>
+          <div class="vis-canvas-icon">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+              <rect x="2" y="2" width="22" height="22" rx="5" stroke="rgba(196,181,253,0.5)" stroke-width="1.4"/>
+              <circle cx="9" cy="9" r="2.5" stroke="rgba(196,181,253,0.4)" stroke-width="1.2"/>
+              <path d="M2 17l6-5 5 4 3-3 8 7" stroke="rgba(196,181,253,0.35)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="vis-canvas-hint">Здесь появится<br>сгенерированная сцена</div>
+        </div>
+
+        <!-- Generate button -->
+        <div class="vis-btn-generate">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M9 1.5l1.8 5.4H17l-4.6 3.3 1.7 5.3L9 12.3l-5.1 3.2 1.7-5.3L1 6.9h6.2L9 1.5z" stroke="rgba(255,255,255,0.8)" stroke-width="1.4" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/>
+          </svg>
+          Сгенерировать
+        </div>
+
+        <!-- Note -->
+        <div class="vis-note">
+          <div class="vis-note-dot"></div>
+          <div class="vis-note-text"><strong>Beta</strong> · Генерация занимает 10–30 секунд. Качество улучшается с каждым обновлением.</div>
+        </div>
+
+        <!-- History -->
+        <div class="vis-history-label">История</div>
+
+        <div class="vis-history-item">
+          <div class="vis-hist-thumb photo-t">🌆</div>
+          <div class="vis-hist-meta">
+            <div class="vis-hist-title">Полёт над городом</div>
+            <div class="vis-hist-sub">12 мая · Фото-сцена</div>
+          </div>
+          <div class="vis-hist-badge photo-b">Фото</div>
+        </div>
+
+        <div class="vis-history-item">
+          <div class="vis-hist-thumb video-t">🌀</div>
+          <div class="vis-hist-meta">
+            <div class="vis-hist-title">Бесконечный коридор</div>
+            <div class="vis-hist-sub">10 мая · Видео-ролик</div>
+          </div>
+          <div class="vis-hist-badge video-b">Видео</div>
+        </div>
+
+      </div><!-- /scroll-area -->
+
+      <!-- Bottom Navigation -->
+      <div class="bottom-nav">
+        <div class="nav-inner">
+          <div class="nav-item-s">
+            <div class="nav-icon-wrap-s">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <path d="M5 3h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="rgba(255,255,255,0.3)" stroke-width="1.6"/>
+                <path d="M7 7h6M7 10h6M7 13h4" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="nav-label-s">Дневник</span>
+          </div>
+          <div class="nav-item-s nav-active">
+            <div class="nav-icon-wrap-s">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="3" stroke="#8B5CF6" stroke-width="1.6"/>
+                <path d="M10 2v2M10 16v2M2 10h2M16 10h2" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="nav-label-s" style="color:#8B5CF6;font-weight:600;">Визуализация</span>
+          </div>
+          <div class="nav-item-s">
+            <div class="nav-icon-wrap-s">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <rect x="3" y="12" width="3" height="5" rx="1" fill="rgba(255,255,255,0.28)"/>
+                <rect x="8.5" y="8" width="3" height="9" rx="1" fill="rgba(255,255,255,0.28)"/>
+                <rect x="14" y="4" width="3" height="13" rx="1" fill="rgba(255,255,255,0.28)"/>
+              </svg>
+            </div>
+            <span class="nav-label-s">Аналитика</span>
+          </div>
+          <div class="nav-item-s">
+            <div class="nav-icon-wrap-s">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="7" r="3.25" stroke="rgba(255,255,255,0.28)" stroke-width="1.6"/>
+                <path d="M3.5 17c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5" stroke="rgba(255,255,255,0.28)" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="nav-label-s">Профиль</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+(function(){
+  var map = {
+    'Дневник':      '3_diary',
+    'Визуализация': '6_viz',
+    'Аналитика':    '7_analytics',
+    'Профиль':      '8_profile'
+  };
+  // Bottom nav clicks
+  document.querySelectorAll('.nav-item-s').forEach(function(item){
+    item.style.cursor = 'pointer';
+    var label = item.querySelector('.nav-label-s');
+    if(label){
+      var txt = label.textContent.trim();
+      if(map[txt]){
+        item.addEventListener('click', function(){ parent.goTo(map[txt]); });
+      }
+    }
+  });
+  
+  // Nothing extra, nav is enough
+
+})();
+</script>
+
+</body>
+</html>

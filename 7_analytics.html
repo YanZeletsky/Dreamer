@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сновидец — Аналитика снов</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #000000;
+  --purple: #8B5CF6;
+  --teal:   #14B8A6;
+  --amber:  #F59E0B;
+  --glass:  rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.08);
+  --text:   rgba(255,255,255,0.88);
+  --muted:  rgba(255,255,255,0.35);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ── Phone shell ── */
+.phone {
+  width: 320px; height: 693px;
+  background: #000; border-radius: 44px; overflow: hidden;
+  border: 1.5px solid rgba(255,255,255,0.10);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.8), 0 32px 80px rgba(0,0,0,0.8),
+              inset 0 1px 0 rgba(255,255,255,0.06);
+  position: relative; isolation: isolate;
+}
+.phone-inner {
+  width: 390px; height: 844px;
+  transform: scale(calc(320/390));
+  transform-origin: top left;
+  position: relative;
+}
+
+/* ── Atmosphere ── */
+.nebula { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.nebula::before {
+  content: ''; position: absolute; top: -80px; right: -60px;
+  width: 300px; height: 300px;
+  background: radial-gradient(ellipse, rgba(139,92,246,0.13) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.nebula::after {
+  content: ''; position: absolute; bottom: 120px; left: -80px;
+  width: 280px; height: 280px;
+  background: radial-gradient(ellipse, rgba(20,184,166,0.07) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+/* ── Dynamic Island & Status Bar ── */
+.dynamic-island {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  width: 126px; height: 37px; background: #000; border-radius: 20px; z-index: 20;
+}
+.status-bar {
+  position: relative; z-index: 10; height: 54px; padding: 16px 28px 0;
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.status-bar .time { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.85); letter-spacing: -0.3px; }
+.status-icons { display: flex; align-items: center; gap: 6px; }
+
+/* ── Layout ── */
+.phone-layout { display: flex; flex-direction: column; height: 844px; position: relative; }
+.content-area {
+  flex: 1; padding: 4px 22px 112px;
+  overflow-y: auto; scrollbar-width: none;
+}
+.content-area::-webkit-scrollbar { display: none; }
+
+/* ── Bottom Nav ── */
+.bottom-nav {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
+  padding: 0 4px 34px;
+  background: rgba(0,0,0,0.88); backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.nav-inner { display: flex; justify-content: space-around; align-items: center; padding-top: 8px; }
+.nav-item-s {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 5px 8px; border-radius: 14px; flex: 1;
+}
+.nav-icon-wrap-s {
+  width: 32px; height: 26px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-label-s { font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.28); white-space: nowrap; }
+.nav-active .nav-icon-wrap-s { background: rgba(139,92,246,0.2); }
+.nav-active .nav-label-s { color: #8B5CF6; font-weight: 600; }
+
+/* ════════════════════════════════
+   SCREEN — ANALYTICS
+════════════════════════════════ */
+
+/* Page header */
+.an-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding-top: 6px; margin-bottom: 22px;
+}
+.an-title {
+  font-size: 28px; font-weight: 800; color: #fff;
+  letter-spacing: -0.8px; line-height: 1.1;
+}
+.an-period {
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 12px; border-radius: 99px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+  font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.45);
+  cursor: pointer;
+}
+.an-period svg { opacity: 0.5; }
+
+/* ── Stats section label ── */
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(139,92,246,0.8);
+  margin-bottom: 12px;
+}
+
+/* ── Featured big stat (исправлен: убрана фиолетовая заливка) ── */
+.an-featured {
+  display: flex; gap: 10px; margin-bottom: 10px;
+}
+.an-feat-main {
+  flex: 1; padding: 16px 14px; border-radius: 22px;
+  background: rgba(255,255,255,0.04);  /* ← теперь как у других карточек */
+  border: 1px solid rgba(255,255,255,0.08);  /* ← как у других карточек */
+  position: relative; overflow: hidden;
+}
+.an-feat-main::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139,92,246,0.5), transparent);
+}
+.an-feat-label {
+  font-size: 10px; font-weight: 600;
+  color: rgba(255,255,255,0.45);  /* ← серый, как другие подписи */
+  letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px;
+}
+.an-feat-val {
+  font-size: 42px; font-weight: 800; color: #fff;
+  letter-spacing: -2px; line-height: 1; margin-bottom: 4px;
+}
+.an-feat-sub { font-size: 11px; color: rgba(255,255,255,0.35); }
+.an-feat-sub span { color: rgba(255,255,255,0.55); font-weight: 600; }
+
+/* Streak mini card */
+.an-feat-side { display: flex; flex-direction: column; gap: 10px; width: 96px; }
+.an-side-card {
+  flex: 1; padding: 12px 10px; border-radius: 20px;
+  background: var(--glass); border: 1px solid var(--border);
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+}
+.an-side-card::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-top, rgba(20,184,166,0.5)), transparent);
+}
+.an-side-icon { font-size: 16px; margin-bottom: 4px; display: block; }
+.an-side-val  { font-size: 20px; font-weight: 800; color: #fff; line-height: 1; }
+.an-side-label { font-size: 9.5px; font-weight: 600; color: rgba(255,255,255,0.35); margin-top: 3px; }
+
+/* ── 2-column row ── */
+.an-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.an-card {
+  padding: 14px 13px; border-radius: 20px;
+  background: var(--glass); border: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.an-card::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--c-top, rgba(139,92,246,0.5)), transparent);
+}
+
+/* Format split bar */
+.an-format-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.35); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.8px; }
+.an-format-bar {
+  height: 6px; border-radius: 99px; overflow: hidden;
+  background: rgba(255,255,255,0.07); margin-bottom: 10px; display: flex;
+}
+.an-format-seg { height: 100%; border-radius: 99px; }
+.an-format-legend { display: flex; flex-direction: column; gap: 5px; }
+.an-fmt-row { display: flex; align-items: center; gap: 6px; }
+.an-fmt-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.an-fmt-name { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.55); flex: 1; }
+.an-fmt-count { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.7); }
+
+/* Tag cloud */
+.an-tag-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.35); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.8px; }
+.an-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.an-tag {
+  padding: 3px 9px; border-radius: 8px;
+  font-size: 10px; font-weight: 600;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.45);
+}
+.an-tag.top {
+  background: rgba(139,92,246,0.18); border-color: rgba(139,92,246,0.3);
+  color: #C4B5FD;
+}
+.an-tag.mid {
+  background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.22);
+  color: rgba(251,191,36,0.75);
+}
+
+/* Awareness mini bar */
+.an-aware-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.35); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; }
+.an-aware-val { font-size: 28px; font-weight: 800; color: #fff; letter-spacing: -1px; line-height: 1; margin-bottom: 2px; }
+.an-aware-sub { font-size: 9.5px; color: rgba(255,255,255,0.3); margin-bottom: 10px; }
+.an-aware-track {
+  height: 5px; border-radius: 99px;
+  background: rgba(255,255,255,0.07); position: relative; overflow: hidden;
+}
+.an-aware-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  border-radius: 99px; width: 48%;
+  background: linear-gradient(90deg, #14B8A6, #6366F1);
+}
+
+/* ── Calendar ── */
+.glass-card {
+  background: var(--glass); backdrop-filter: blur(20px);
+  border-radius: 24px; border: 1px solid var(--border);
+}
+.cal-card { padding: 16px 14px 14px; margin-bottom: 0; }
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.cal-title  { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.88); }
+.cal-nav {
+  display: flex; align-items: center; gap: 4px;
+}
+.cal-nav-btn {
+  width: 26px; height: 26px; border-radius: 8px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: rgba(255,255,255,0.4); cursor: pointer;
+}
+.cal-legend { display: flex; gap: 12px; margin-bottom: 10px; }
+.cal-legend-item { display: flex; align-items: center; gap: 4px; font-size: 9.5px; color: rgba(255,255,255,0.38); }
+.cal-legend-dot  { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.cal-grid-head   { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; margin-bottom: 4px; }
+.cal-dow { text-align: center; font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.2); }
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
+.cal-day {
+  aspect-ratio: 1; border-radius: 9px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.38);
+}
+.cal-day.empty { opacity: 0; }
+.cal-day.today {
+  background: rgba(139,92,246,0.2); border: 1.5px solid rgba(139,92,246,0.45);
+  color: #C4B5FD; font-weight: 700;
+}
+.cal-day-num { line-height: 1; }
+.cal-dot-mark { width: 5px; height: 5px; border-radius: 50%; }
+.dot-lucid     { background: #22C55E; }
+.dot-normal    { background: #F59E0B; }
+.dot-nightmare { background: #EF4444; }
+
+/* Mobile fullscreen override */
+@media (max-width: 500px) {
+  body { align-items: flex-start; }
+  .phone {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .phone-inner {
+    width: 100vw !important;
+    height: 100vh !important;
+    transform: none !important;
+  }
+  .phone-layout {
+    height: 100vh !important;
+  }
+  .dynamic-island { display: none; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="phone-inner">
+    <div class="nebula"></div>
+    <div class="dynamic-island"></div>
+    <div class="phone-layout">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">9:41</span>
+        <div class="status-icons">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
+            <rect x="0" y="7" width="3" height="5" rx="1" fill="white" opacity="0.6"/>
+            <rect x="4.5" y="5" width="3" height="7" rx="1" fill="white" opacity="0.6"/>
+            <rect x="9" y="2.5" width="3" height="9.5" rx="1" fill="white" opacity="0.6"/>
+            <rect x="13.5" y="0" width="3" height="12" rx="1" fill="white" opacity="0.2"/>
+          </svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity="0.35"/>
+            <rect x="1.5" y="1.5" width="16" height="9" rx="2.5" fill="white"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="content-area">
+
+        <!-- Page header -->
+        <div class="an-header">
+          <div class="an-title">Аналитика</div>
+          <div class="an-period">
+            Май 2026
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="section-label">Статистика</div>
+
+        <!-- Featured + side (плашка "Записей" теперь без фиолетовой заливки) -->
+        <div class="an-featured" style="margin-bottom:10px;">
+          <!-- Main: total records — фон убран, текст подписи серый -->
+          <div class="an-feat-main">
+            <div class="an-feat-label">Записей</div>
+            <div class="an-feat-val">12</div>
+            <div class="an-feat-sub">в этом месяце · <span>+3 к прошлому</span></div>
+          </div>
+          <!-- Side cards -->
+          <div class="an-feat-side">
+            <div class="an-side-card" style="--accent-top: rgba(20,184,166,0.5);">
+              <span class="an-side-icon">🔥</span>
+              <div>
+                <div class="an-side-val">7</div>
+                <div class="an-side-label">Дней подряд</div>
+              </div>
+            </div>
+            <div class="an-side-card" style="--accent-top: rgba(245,158,11,0.5);">
+              <span class="an-side-icon">✨</span>
+              <div>
+                <div class="an-side-val">5</div>
+                <div class="an-side-label">Осознанных</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Format split + Tags -->
+        <div class="an-row2">
+          <!-- Format split -->
+          <div class="an-card" style="--c-top: rgba(20,184,166,0.45);">
+            <div class="an-format-label">Формат</div>
+            <div class="an-format-bar">
+              <div class="an-format-seg" style="width:60%;background:#8B5CF6;opacity:0.75;"></div>
+              <div class="an-format-seg" style="width:2%;background:transparent;"></div>
+              <div class="an-format-seg" style="width:38%;background:#14B8A6;opacity:0.65;"></div>
+            </div>
+            <div class="an-format-legend">
+              <div class="an-fmt-row">
+                <div class="an-fmt-dot" style="background:#8B5CF6;"></div>
+                <div class="an-fmt-name">Текст</div>
+                <div class="an-fmt-count">7</div>
+              </div>
+              <div class="an-fmt-row">
+                <div class="an-fmt-dot" style="background:#14B8A6;"></div>
+                <div class="an-fmt-name">Аудио</div>
+                <div class="an-fmt-count">5</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top tags -->
+          <div class="an-card" style="--c-top: rgba(245,158,11,0.45);">
+            <div class="an-tag-label">Топ теги</div>
+            <div class="an-tags">
+              <div class="an-tag top">#осознанный</div>
+              <div class="an-tag mid">#полёт</div>
+              <div class="an-tag">#лес</div>
+              <div class="an-tag">#вода</div>
+              <div class="an-tag mid">#город</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Awareness full-width -->
+        <div class="an-card" style="--c-top: rgba(99,102,241,0.5); margin-bottom:16px;">
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="flex:1;">
+              <div class="an-aware-label">Осознанность</div>
+              <div class="an-aware-val">48<span style="font-size:16px;font-weight:600;color:rgba(255,255,255,0.4);">%</span></div>
+              <div class="an-aware-sub">средняя за 30 дней</div>
+              <div class="an-aware-track"><div class="an-aware-fill"></div></div>
+            </div>
+            <div style="text-align:right;padding-top:2px;">
+              <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">Пик</div>
+              <div style="font-size:18px;font-weight:800;color:#C4B5FD;line-height:1;">72<span style="font-size:11px;font-weight:600;opacity:0.6;">%</span></div>
+              <div style="font-size:9.5px;color:rgba(255,255,255,0.28);margin-top:2px;">17 мая</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">Календарь снов</div>
+
+        <!-- Calendar -->
+        <div class="glass-card cal-card">
+          <div class="cal-header">
+            <div class="cal-title">Май 2026</div>
+            <div class="cal-nav">
+              <div class="cal-nav-btn">‹</div>
+              <div class="cal-nav-btn">›</div>
+            </div>
+          </div>
+          <div class="cal-legend">
+            <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#22C55E;"></div>Осознанный</div>
+            <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#F59E0B;"></div>Обычный</div>
+            <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#EF4444;"></div>Кошмар</div>
+          </div>
+          <div class="cal-grid-head">
+            <div class="cal-dow">Пн</div><div class="cal-dow">Вт</div><div class="cal-dow">Ср</div>
+            <div class="cal-dow">Чт</div><div class="cal-dow">Пт</div><div class="cal-dow">Сб</div><div class="cal-dow">Вс</div>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div>
+            <div class="cal-day"><span class="cal-day-num">1</span></div>
+            <div class="cal-day"><span class="cal-day-num">2</span></div>
+            <div class="cal-day"><span class="cal-day-num">3</span><div class="cal-dot-mark dot-normal"></div></div>
+            <div class="cal-day"><span class="cal-day-num">4</span></div>
+            <div class="cal-day"><span class="cal-day-num">5</span><div class="cal-dot-mark dot-lucid"></div></div>
+            <div class="cal-day"><span class="cal-day-num">6</span></div>
+            <div class="cal-day"><span class="cal-day-num">7</span><div class="cal-dot-mark dot-normal"></div></div>
+            <div class="cal-day"><span class="cal-day-num">8</span></div>
+            <div class="cal-day"><span class="cal-day-num">9</span><div class="cal-dot-mark dot-nightmare"></div></div>
+            <div class="cal-day"><span class="cal-day-num">10</span><div class="cal-dot-mark dot-normal"></div></div>
+            <div class="cal-day"><span class="cal-day-num">11</span><div class="cal-dot-mark dot-nightmare"></div></div>
+            <div class="cal-day"><span class="cal-day-num">12</span><div class="cal-dot-mark dot-lucid"></div></div>
+            <div class="cal-day"><span class="cal-day-num">13</span></div>
+            <div class="cal-day"><span class="cal-day-num">14</span><div class="cal-dot-mark dot-lucid"></div></div>
+            <div class="cal-day"><span class="cal-day-num">15</span><div class="cal-dot-mark dot-normal"></div></div>
+            <div class="cal-day"><span class="cal-day-num">16</span></div>
+            <div class="cal-day"><span class="cal-day-num">17</span><div class="cal-dot-mark dot-lucid"></div></div>
+            <div class="cal-day"><span class="cal-day-num">18</span></div>
+            <div class="cal-day"><span class="cal-day-num">19</span><div class="cal-dot-mark dot-lucid"></div></div>
+            <div class="cal-day today"><span class="cal-day-num">20</span><div class="cal-dot-mark dot-lucid"></div></div>
+            <div class="cal-day"><span class="cal-day-num">21</span></div>
+            <div class="cal-day"><span class="cal-day-num">22</span></div>
+            <div class="cal-day"><span class="cal-day-num">23</span></div>
+            <div class="cal-day"><span class="cal-day-num">24</span></div>
+            <div class="cal-day"><span class="cal-day-num">25</span></div>
+            <div class="cal-day"><span class="cal-day-num">26</span></div>
+            <div class="cal-day"><span class="cal-day-num">27</span></div>
+            <div class="cal-day"><span class="cal-day-num">28</span></div>
+            <div class="cal-day"><span class="cal-day-num">29</span></div>
+            <div class="cal-day"><span class="cal-day-num">30</span></div>
+            <div class="cal-day"><span class="cal-day-num">31</span></div>
+          </div>
+        </div>
+
+      </div><!-- /content-area -->
+
+      <!-- Bottom Navigation -->
+      <div class="bottom-nav">
+        <div class="nav-inner">
+          <div class="nav-item-s">
+            <div class="nav-icon-wrap-s">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <path d="M5 3h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="rgba(255,255,255,0.3)" stroke-width="1.6"/>
+                <path d="M7 7h6M7 10h6M7 13h4" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="nav-label-s">Дневник</span>
+          </div>
+          <div class="nav-item-s">
+            <div class="nav-icon-wrap-s">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="3" stroke="rgba(255,255,255,0.3)" stroke-width="1.6"/>
+                <path d="M10 2v2M10 16v2M2 10h2M16 10h2" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="nav-label-s">Визуализация</span>
+          </div>
+          <div class="nav-item-s nav-active">
+            <div class="nav-icon-wrap-s">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <rect x="3" y="12" width="3" height="5" rx="1" fill="#8B5CF6"/>
+                <rect x="8.5" y="8" width="3" height="9" rx="1" fill="#8B5CF6"/>
+                <rect x="14" y="4" width="3" height="13" rx="1" fill="#8B5CF6"/>
+              </svg>
+            </div>
+            <span class="nav-label-s" style="color:#8B5CF6;font-weight:600;">Аналитика</span>
+          </div>
+          <div class="nav-item-s">
+            <div class="nav-icon-wrap-s">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="7" r="3.25" stroke="rgba(255,255,255,0.28)" stroke-width="1.6"/>
+                <path d="M3.5 17c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5" stroke="rgba(255,255,255,0.28)" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="nav-label-s">Профиль</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+(function(){
+  var map = {
+    'Дневник':      '3_diary',
+    'Визуализация': '6_viz',
+    'Аналитика':    '7_analytics',
+    'Профиль':      '8_profile'
+  };
+  // Bottom nav clicks
+  document.querySelectorAll('.nav-item-s').forEach(function(item){
+    item.style.cursor = 'pointer';
+    var label = item.querySelector('.nav-label-s');
+    if(label){
+      var txt = label.textContent.trim();
+      if(map[txt]){
+        item.addEventListener('click', function(){ parent.goTo(map[txt]); });
+      }
+    }
+  });
+  
+  // Nothing extra
+
+})();
+</script>
+
+</body>
+</html>

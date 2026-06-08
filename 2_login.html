@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сновидец — Вход</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #000; width: 100%; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+  .wrap { position: relative; width: 100%; height: 100%; }
+  .wrap img { width: 100%; height: 100%; object-fit: contain; }
+  /* Прозрачная кнопка поверх «Войти» */
+  .btn-enter {
+    position: absolute;
+    left: 10%; right: 10%;
+    top: 72%; height: 6%;
+    cursor: pointer;
+    border-radius: 16px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <img src="img/screen_login.png" alt="Вход">
+    <div class="btn-enter" onclick="parent.goTo('3_diary')"></div>
+  </div>
+</body>
+</html>
